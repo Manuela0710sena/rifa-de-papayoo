@@ -4,6 +4,7 @@ Sistema web completo para la gestión de rifas de la empresa Papayoo, que admini
 
 ## 🎯 Características Principales
 
+
 ### Para Clientes
 - ✅ Acceso mediante códigos QR de facturas
 - ✅ Registro/Login con validación de códigos únicos
