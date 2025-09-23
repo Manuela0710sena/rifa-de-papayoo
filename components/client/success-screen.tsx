@@ -1,4 +1,4 @@
-"use client"
+"use client" 
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -67,7 +67,7 @@ export function SuccessScreen({ cliente, numeroRifa, onLogout }: SuccessScreenPr
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+    <div className="min-h-screen  bg-gradient-to-br from-amber-400 to-secondary/10 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">

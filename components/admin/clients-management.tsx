@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Search, Users, Download, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Users, Download, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
 import type { ClienteListItem, Sede } from "@/types"
 
 interface ClientsManagementProps {
@@ -25,6 +25,7 @@ export function ClientsManagement({ token }: ClientsManagementProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [expandedRows, setExpandedRows] = useState<number[]>([]) // 👈 controla los códigos desplegados
 
   const fetchClients = async () => {
     setIsLoading(true)
@@ -81,39 +82,43 @@ export function ClientsManagement({ token }: ClientsManagementProps) {
       hour: "2-digit", minute: "2-digit",
     })
   }
-const handleExportCSV = async () => {
-  try {
-    const params = new URLSearchParams()
-    if (search) params.append("search", search)
-    if (selectedSede !== "all") params.append("sede_id", selectedSede)
 
-    const response = await fetch(`/api/internal/admin/clientes/export?${params.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+  const handleExportCSV = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (search) params.append("search", search)
+      if (selectedSede !== "all") params.append("sede_id", selectedSede)
 
-    if (!response.ok) {
-      const data = await response.json()
-      alert(data.message || "Error exportando clientes")
-      return
+      const response = await fetch(`/api/internal/admin/clientes/export?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        alert(data.message || "Error exportando clientes")
+        return
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `clientes_export_${Date.now()}.csv`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error exportando CSV:", error)
+      alert("Error exportando CSV")
     }
-
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `clientes_export_${Date.now()}.csv`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error("Error exportando CSV:", error)
-    alert("Error exportando CSV")
   }
-}
 
+  const toggleRow = (id: number) => {
+    setExpandedRows((prev) =>
+      prev.includes(id) ? prev.filter((row) => row !== id) : [...prev, id]
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -131,11 +136,11 @@ const handleExportCSV = async () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <Input placeholder="Buscar por nombre, apellido o correo..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <div className="w-full md:w-48">
+            <div className="w-full sm:w-48">
               <Select value={selectedSede} onValueChange={setSelectedSede}>
                 <SelectTrigger><SelectValue placeholder="Todas las sedes" /></SelectTrigger>
                 <SelectContent>
@@ -146,7 +151,7 @@ const handleExportCSV = async () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
               <Search className="mr-2 h-4 w-4" />
               Buscar
             </Button>
@@ -157,7 +162,7 @@ const handleExportCSV = async () => {
       {/* Results */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <CardTitle className="flex items-center">
                 <Users className="mr-2 h-5 w-5" />
@@ -165,10 +170,10 @@ const handleExportCSV = async () => {
               </CardTitle>
               <CardDescription>Lista de todos los clientes registrados</CardDescription>
             </div>
-          <Button variant="outline" onClick={handleExportCSV}>
-  <Download className="mr-2 h-4 w-4" />
-  Exportar CSV
-</Button>
+            <Button variant="outline" onClick={handleExportCSV}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -176,7 +181,7 @@ const handleExportCSV = async () => {
 
           {isLoading ? (
             <div className="space-y-4">{[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse"><div className="h-16 bg-muted rounded"></div></div>
+              <div key={i} className="animate-pulse"><div className="h-10 bg-muted rounded"></div></div>
             ))}</div>
           ) : clients.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -184,33 +189,74 @@ const handleExportCSV = async () => {
               <p>No se encontraron clientes</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {clients.map((client) => (
-                <div key={client.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{client.nombre}</h3>
-                        {client.codigos?.map((codigo, i) => (
-                          <Badge key={i} variant="secondary" className="font-mono">#{codigo}</Badge>
-                        ))}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{client.correo}</p>
-                      <p className="text-sm text-muted-foreground">{client.telefono}</p>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <p className="text-sm font-medium">{client.sede}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(client.fecha_registro)}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-muted text-left">
+                    <th className="p-2">Nombre</th>
+                    <th className="p-2">Correo</th>
+                    <th className="p-2">Teléfono</th>
+                    <th className="p-2">Sede</th>
+                    <th className="p-2">Registro</th>
+                    <th className="p-2">Códigos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.map((client) => {
+                    const lastCode = client.codigos?.[client.codigos.length - 1]
+                    const otherCodes = client.codigos?.slice(0, -1) || []
+                    const isExpanded = expandedRows.includes(client.id)
+
+                    return (
+                      <tr key={client.id} className="border-b hover:bg-muted/50">
+                        <td className="p-2 font-medium">{client.nombre}</td>
+                        <td className="p-2">{client.correo}</td>
+                        <td className="p-2">{client.telefono}</td>
+                        <td className="p-2">{client.sede}</td>
+                        <td className="p-2 text-xs text-muted-foreground">{formatDate(client.fecha_registro)}</td>
+                        <td className="p-2">
+                          <div className="flex flex-wrap items-center gap-1">
+                            {lastCode && (
+                              <Badge variant="secondary" className="font-mono text-xs">#{lastCode}</Badge>
+                            )}
+                            {otherCodes.length > 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={() => toggleRow(client.id)}
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="h-3 w-3 mr-1" /> Ocultar
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="h-3 w-3 mr-1" /> {otherCodes.length} más
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                          {isExpanded && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {otherCodes.map((codigo, i) => (
+                                <Badge key={i} variant="outline" className="font-mono text-xs">#{codigo}</Badge>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-6 flex-wrap gap-2">
               <p className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</p>
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>

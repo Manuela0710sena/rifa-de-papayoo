@@ -52,12 +52,12 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-400 to-secondary/10 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
-            <div className="h-16 w-16 mx-auto bg-primary rounded-full flex items-center justify-center">
-              <Shield className="h-8 w-8 text-primary-foreground" />
+            <div className="h-30 w-30 mx-auto bg-white rounded-full flex items-center justify-center">
+         <img src="images/papayoo-logo.png" alt="" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-primary">Panel Administrativo</CardTitle>
@@ -125,8 +125,8 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Credenciales por defecto:</p>
-            <p className="font-mono text-xs">admin / admin123</p>
+            <p></p>
+            <p className="font-mono text-xs"></p>
           </div>
         </CardContent>
       </Card>

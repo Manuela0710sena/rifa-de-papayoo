@@ -6,7 +6,8 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000, // Increased from 2000 to 10000ms
+  connectionTimeoutMillis: 10000, // 10s
+  keepAlive: true, // Mantener conexión viva si el proveedor lo permite
 })
 
 pool.on("error", (err: any) => {
@@ -15,7 +16,7 @@ pool.on("error", (err: any) => {
 
 export default pool
 
-// Database query helper with error handling
+// Database query helper
 export async function query(text: string, params?: any[]) {
   const start = Date.now()
   let client
@@ -33,6 +34,27 @@ export async function query(text: string, params?: any[]) {
       client.release()
     }
   }
+}
+
+// ✅ Safe query helper (con reintentos automáticos)
+export async function safeQuery(
+  text: string,
+  params?: any[],
+  retries: number = 2
+) {
+  let lastError
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await query(text, params)
+    } catch (error: any) {
+      lastError = error
+      console.warn(`Query attempt ${attempt} failed:`, error.message)
+      if (attempt < retries) {
+        await new Promise((res) => setTimeout(res, 500)) // pequeño delay antes de reintentar
+      }
+    }
+  }
+  throw lastError
 }
 
 // Transaction helper

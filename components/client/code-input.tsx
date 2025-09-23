@@ -49,21 +49,21 @@ export function CodeInput({ onValidCode }: CodeInputProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+    <div className="min-h-screen  bg-gradient-to-br from-amber-400 to-secondary/10  flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
             <img src="/images/papayoo-logo.png" alt="Papayoo" className="h-20 w-20 mx-auto" />
           </div>
           <CardTitle className="text-2xl font-bold text-primary">¡Bienvenido a Papayoo!</CardTitle>
-          <CardDescription>Ingresa el código de tu factura para participar en la rifa</CardDescription>
+          <CardDescription>Ingresa el código de tu factura para participar en la rifa por una moto</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Input
                 type="text"
-                placeholder="Ingresa tu código (ej: ABC123)"
+                placeholder="Ingresa tu código"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 className="text-center text-lg font-mono tracking-wider"

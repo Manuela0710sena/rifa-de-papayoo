@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Building2, Plus, Edit, Trash2, MapPin } from "lucide-react"
+import { Building2, Plus, Edit, Trash2 } from "lucide-react"
 import type { Sede } from "@/types"
 
 interface SedesManagementProps {
@@ -219,7 +219,7 @@ export function SedesManagement({ token }: SedesManagementProps) {
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="h-20 bg-muted rounded"></div>
+                  <div className="h-10 bg-muted rounded"></div>
                 </div>
               ))}
             </div>
@@ -229,39 +229,62 @@ export function SedesManagement({ token }: SedesManagementProps) {
               <p>No hay sedes registradas</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {sedes.map((sede) => (
-                <div key={sede.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{sede.nombre}</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-muted/50 text-left">
+                    <th className="p-3 font-medium">Nombre</th>
+                    <th className="p-3 font-medium">Ciudad</th>
+                    <th className="p-3 font-medium">Dirección</th>
+                    <th className="p-3 font-medium">Fecha de creación</th>
+                    <th className="p-3 font-medium">Estado</th>
+
+
+
+                    <th className="p-3 font-medium text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sedes.map((sede) => (
+                    <tr
+                      key={sede.id}
+                      className="border-b hover:bg-muted/50 transition-colors"
+                    >
+                      <td className="p-3 font-semibold">{sede.nombre}</td>
+                     
+                      <td className="p-3">{sede.ciudad}</td>
+                      <td className="p-3">{sede.direccion || <span className="text-muted-foreground">—</span>}</td>
+                      <td className="p-3 text-xs text-muted-foreground">
+                        {new Date(sede.fecha_creacion).toLocaleDateString("es-ES")}
+                      </td>
+                       <td className="p-3">
                         <Badge variant={sede.estado === "activa" ? "default" : "secondary"}>
                           {sede.estado === "activa" ? "Activa" : "Inactiva"}
                         </Badge>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {sede.ciudad}
-                        {sede.direccion && ` - ${sede.direccion}`}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Creada: {new Date(sede.fecha_creacion).toLocaleDateString("es-ES")}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(sede)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {sede.estado === "activa" && (
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(sede)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td className="p-3 text-center">
+                        <div className="flex justify-center space-x-2">
+                          <Button variant="outline" 
+                          size="sm" onClick={() => handleEdit(sede)}
+                            className="group bg-white hover:bg-orange-300 hover:border-orange-300 transition-colors duration-200">
+                            <Edit className="h-4 w-4 text-blue-400 hover:text-blue-black group-hover:text-white transition-colors duration-200" />
+                          </Button>
+                          {sede.estado === "activa" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(sede)}
+                              className="group bg-white hover:bg-orange-300 hover:border-orange-300 transition-colors duration-200"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-400 group-hover:text-white transition-colors duration-200" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>

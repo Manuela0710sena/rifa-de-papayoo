@@ -137,7 +137,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+    <div className="min-h-screen  bg-gradient-to-br from-amber-400 to-secondary/10  flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
@@ -157,7 +157,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="nombre">Nombre *</Label>
+                    <Label className="mb-3"  htmlFor="nombre">Nombre </Label>
                     <Input
                       id="nombre"
                       type="text"
@@ -168,7 +168,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="apellidos">Apellidos *</Label>
+                    <Label className="mb-3"  htmlFor="apellidos">Apellidos </Label>
                     <Input
                       id="apellidos"
                       type="text"
@@ -181,7 +181,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="telefono">Teléfono *</Label>
+                  <Label className="mb-3" htmlFor="telefono">Teléfono</Label>
                   <Input
                     id="telefono"
                     type="tel"
@@ -193,7 +193,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="correo">Correo Electrónico *</Label>
+                  <Label className="mb-3" htmlFor="correo">Correo Electrónico </Label>
                   <Input
                     id="correo"
                     type="email"
@@ -201,11 +201,12 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                     onChange={(e) => setRegisterForm({ ...registerForm, correo: e.target.value })}
                     required
                     disabled={isLoading}
+                    
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="sede">Sede Frecuentada *</Label>
+                  <Label className="mb-3"  htmlFor="sede" >Sede Frecuentada </Label>
                   <Select
                     value={registerForm.sede_id}
                     onValueChange={(value) => setRegisterForm({ ...registerForm, sede_id: value })}
@@ -225,7 +226,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="password">Contraseña *</Label>
+                  <Label className="mb-3"  htmlFor="password">Contraseña </Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -250,7 +251,7 @@ export function AuthForm({ code, onSuccess }: AuthFormProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword">Confirmar Contraseña *</Label>
+                  <Label className="mb-3"  htmlFor="confirmPassword">Confirmar Contraseña </Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"

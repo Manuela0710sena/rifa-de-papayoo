@@ -6,10 +6,14 @@ import { logError } from "@/lib/logger"
 export async function GET(req: NextRequest) {
   try {
     const token = extractToken(req)
-    if (!token) return NextResponse.json({ success: false, message: "Token requerido" }, { status: 401 })
+    if (!token) {
+      return NextResponse.json({ success: false, message: "Token requerido" }, { status: 401 })
+    }
 
     const decoded = verifyToken(token)
-    if (decoded.type !== "admin") return NextResponse.json({ success: false, message: "Acceso denegado" }, { status: 403 })
+    if (decoded.type !== "admin") {
+      return NextResponse.json({ success: false, message: "Acceso denegado" }, { status: 403 })
+    }
 
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search") || ""
@@ -33,24 +37,25 @@ export async function GET(req: NextRequest) {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(" AND ")}` : ""
 
-    // Query clientes
+    // Query clientes agrupados
     const clientsQuery = `
       SELECT 
         c.nombre || ' ' || c.apellidos as nombre,
         c.correo,
         c.telefono,
         s.nombre as sede,
-        p.numero_rifa
+        STRING_AGG(p.numero_rifa::text, ', ') AS numeros_rifa
       FROM clientes c
       LEFT JOIN sedes s ON c.sede_id = s.id
       LEFT JOIN participaciones p ON c.id = p.cliente_id
       ${whereClause}
-      ORDER BY c.fecha_registro DESC
+      GROUP BY c.id, c.nombre, c.apellidos, c.correo, c.telefono, s.nombre
+      ORDER BY MAX(c.fecha_registro) DESC
     `
     const result = await query(clientsQuery, params)
 
     // Crear CSV
-    const header = ["Nombre", "Correo", "Teléfono", "Sede", "Número de Rifa"]
+    const header = ["Nombre", "Correo", "Teléfono", "Sede", "Números de Rifa"]
     const csvRows = [
       header.join(","),
       ...result.rows.map((r: any) => [
@@ -58,7 +63,7 @@ export async function GET(req: NextRequest) {
         `"${r.correo}"`,
         `"${r.telefono}"`,
         `"${r.sede}"`,
-        `"${r.numero_rifa || ""}"`,
+        `"${r.numeros_rifa || ""}"`,
       ].join(","))
     ]
     const csvContent = csvRows.join("\n")
